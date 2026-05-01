@@ -12,38 +12,27 @@ p1resourcesObtained = 0
 p2resourcesObtained = 0
 -- kills and high ground calculated in funcs 
 currentCompanyURL = ""
+companies = {}
 
+--load(doom_res)
+-- when testing locally
+--dofile("1490res.lua")
+--load("")
+-- Name:
+-- Charname   [ 5 / 5 ]
+-- Desc:
+-- Warrior Priest
+-- Mov.  Atk.  Vit.  Skl.  Def.  Com.  
+--  4     1     5     4+    5+    5+   <- CURRENT, not base.
+-- 
+-- Equipment
+-- Light Weapon (1 Dmg, Base) <- wpn A and damage + range 
+-- Shield <- wpn B and damge+range if wpn 
+-- Ladder <- climbing item (or no line)
+-- Concentrated Creeping Death Serum <- comsunable (or no line)
+-- (always 1 line seperator)
+-- Abilities
 
-function importArmyOK()
-    UI.hide("importArmyPanel")
-    PopulateDoomCompany(1, currentCompanyURL .. "?tts=1") 
-    
-    -- DEBUG 
-    for w in companies[1].warriors do 
-       print(dump(w))
-    end
-
-end
-function change_url(a, b, c)
-    --print(a, b, c)
-    currentCompanyURL = b  
-end
-function show_url_window(a)
-    UI.show("importArmyPanel")
-end
-
-
--- Right now, we give a leeway of 1" in both up/down
-function isSameHeight(a, b)
-    if (a.z > (b.z + 1.0)) then 
-        return false 
-    end
-    if (a.z < (b.z - 1.0)) then 
-        return false 
-    end 
-    return true 
-end
---print(isSameHeight({x=0,y=0,z=12.42}, {x=0,y=0,z=12.32}))
 
 ResourceItems = { 
     HERBS_AND_TONIC = 1, -- +3 vit 
@@ -93,37 +82,121 @@ ClassStats = {  --M. A. V. S. D. C
     REAVER =    { 5, 2, 6, 6, 5, 4 },WARRIOR_PRIEST = { 4, 1, 5, 4, 5, 5 },
     MAD_MULE = { 6, 2, 5, 0, 4, 0 }
 }
+
+ClassAbility = {}
+function ClassAbility:new(o)
+    o = o or { }
+    setmetatable(o, self)
+    self.__index = self
+
+    o.name = ClassAbilityNames[1]
+    o.desc = AbilitiesDesc[1]
+
+    return o
+end
+ClassAbilityNames = {
+    "Night Stalker", "Killshot", "Camouflaged Climber",
+    "Beckon the Swarm", "Stinging Cloud", "Buzzing Mantle",
+    "Executioner's Mark", "Finality", "Aim for the Neck",
+    "Puncturing Precision", "Forge Master", "Sundering Blow",
+    "Rage", "Smash", "Throw", "Eagle's Eye", "Marksman's Focus", "Pinning Shot",
+    "Fury", "Devastating Blow", "Opportunist's Cleave", "Gaunt Gallop", 
+    "Squre of Mud and Root", "The Shattered Shield", "Shield of the Realm",
+    "Inspiring Presence", "Defender's Parry", "Booby Trap", "Set Trap", 
+    "Improved Canister", "Determination", "Dirty Dagger", "",
+    "Early Bird", "I Can Smell It", "Take the Initiative", "Berserker",
+    "Relentless", "Bearing Down", "Heal the Flock", "Last Rites", "Fear of God",
+    "","","",
+    "Overdraw (Bow)", "Reload (Crossbow)", "Shielded (Shield)",
+    "Captain Re-Roll"
+}
+AbilitiesDesc = { 
+    "NIGHT STALKER - The Assassin cannot be attacked until after they ATTACK, PUSH, or Round 4 begins. Until NIGHT STALKER has been expended, enemy models may move over the Assassin as long as they do not land on top of them, and may SCALE climbing items the Assassin occupies.",
+    "KILLSHOT - Once per game after a successful COMBAT Check, the Assassin may perform a KILL SHOT that does 4 damage. The Assassin may only use KILL SHOT on a model that has not activated this round and is within 3 inches. This attack ignores DEFENSE rolls.",
+    "CAMOUFLAGED CLIMBER - An Assassin only requires a 3+ on SKILL Checks while using the CLIMB action.",
+    "BECKON THE SWARM - Once per activation, the Beekeeper may spend an action to BECKON THE SWARM onto an enemy model within 3 inches and within light of sight. That model must roll a DEFENSE Check. If they pass, nothing happens. If they fail, that model becomes Hindered.",
+    "STINGING CLOUD - Whenever an enemy model within 2 inches of the Beekeeper causes the Beekeeper to lose VITALITY, that enemy model must pass a SKILL Check or lose 1 VITALITY.",
+    "BUZZING MANTLE - Enemy models within 1 inch of the Beekeeper suffer -1 to all COMBAT Checks.",
+    "EXECUTIONER'S MARK - Whenever an Executioner declares an ATTACK action targeting an opponent with 2 or less VITALITY, they have +1 COMBAT. In addition, if a COMBAT check succeeds in this manner, the enemy model loses 1 VITALITY bypassing DEFENSE before resolving the rest of the ATTACK.",
+    "FINALITY - Any time an Executioner resolves an ATTACK that reduces a model to 0 VITALITY, the Executioner immediately moves up to 2 inches and restores 1 VITALITY.",
+    "AIM FOR THE NECK - Any time the Executioner attacks an enemy at full VITALITY, they land a Piercing Blow on both 5s and 6s.",
+    "PUNCTURING PRECISION - Once per game, after a successful COMBAT Check, the Blacksmith may use PUNCTURING PRECISION. When they do, the enemy model becomes Breached.",
+    "FORGE MASTER - Once per game, the Blacksmith can spend one action to remove the Breached or Sundered status from a friendly model in base contact (including itself).",
+    "SUNDERING BLOW - Once per game, after a successful COMBAT Check, the Blacksmith may forgo dealing damage and instead that enemy's weapon becomes Sundered.",
+    "RAGE - Once per game a Brute may move up to twice their Movement value and ATTACK with an additional die. This ability requires all of the Brute's actions this turn.",
+    "SMASH - Once per game a Brute may SMASH a door, a ladder, an improvised bridge, or a resource cache that they are in base contact with. Remove that item from play. Any models scaling or standing on that item fall.",
+    "THROW - Once per game after any successful COMBAT Check, instead of resolving any of their ATTACKS that turn, a Brute may instead pick up and THROW an opposing model they are in base contact with 2 inches in any direction (ignoring Barriers). The opponent becomes Stunned after thrown. Roll for falling damage as normal. THROW may not be used in the same turn as RAGE.",
+    "EAGLE'S EYE - The Doom Hunter adds +1 to their Combat stat when targeting models further than 4 inches away.",
+    "MARKSMAN'S FOCUS - Once per activation, a Doom Hunter may use MARKSMAN'S FOCUS to ATTACK with an additional die. This ability requires all of the Doom Hunter's actions this turn.",
+    "PINNING SHOT - Once per game, after a successful COMBAT Check, the Doom Hunter may forgo dealing damage and instead the enemy model becomes Immobilized until the end of their next activation.",
+    "FURY - If the Fighter is in melee range with multiple enemy models, they may spend one action to make a full ATTACK on each of them. This counts as one action regardless of how many enemies are struck. A fighter with multiple attacks from dual wielded light weapons get their bonus attack on each enemy.",
+    "DEVASTATING BLOW - Once per game, after a successful COMBAT Check, you may use DEVASTATING BLOW. This attack does 2 additional damage and ignores DEFENSE rolls.",
+    "OPPORTUNIST'S CLEAVE - The Fighter gains a bonus ATTACK die when targeting an opponent that has not yet activated. This ability does not stack with other bonus ATTACK die (such as the bonus gained from Concentrated Creeping Death Serum).",
+    "GAUNT GALLOP - Anytime the Hedge Knight has performed the DASH Action that brings them in CONTACT with an opposing model, that model makes a SKILL Check. If they fail, they lose 1 VITALITY. If they succeed, the Hedge Knight becomes Hindered.",
+    "SQUIRE OF MUD AND ROOT - The Hedge Knight cannot be Immobilized. In addition, anytime the Hedge Knight successfully inspects a resource cache, they only find Food.",
+    "THE SHATTERED SHIELD - Once per game, the Hedge Knight can block all damage from one standard ATTACK. This ability must be declared after a successful COMBAT check, but before damage is dealt. This ability can block a Piercing Blow, but cannot block any other special abilities. After using this ability, the Hedge Knight's Shield is destroyed, and wields their Polearm with two hands for the rest of the game.",
+    "SHIELD OF THE REALM - Once per game, the Knight can block all damage from one standard ATTACK directed at either them or an ally within 3 inches. This ability must be declared after a successful COMBAT check, but before damage is dealt. It cannot block damage from Special Abilities.",
+    "INSPIRING PRESENCE - Any friendly models within 4 inches of the Knight gain +1 to COMBAT checks while in line of sight of the Knight.",
+    "DEFENDER'S PARRY - Once per game, when an enemy model fails all COMBAT checks against the Knight during an ATTACK, this Knight may counter them. The enemy model takes 2 damage and becomes Hindered. This ability bypasses DEFENSE.",
+    "BOOBY TRAP - The first time an enemy model rolls a 1 or 2 while trying to open a Resource Cache, the Cache explodes dealing 2 damage to that model (this ability is active even after the Saboteur has perished).",
+    "SET TRAP - Twice per game, a Saboteur can set a TRAP within 2 inches of them and at least 2 inches from any other model. The TRAP has a 2-inch diameter. Any model that uses MOVE, DASH, or ends an action within that area (even partially) loses 1 VITALITY without a DEFENSE Check, becomes Hindered, and immediately ends the action. Remove the TRAP from play. The Saboteur is immune to their own traps and may use HANDOFF to retrieve them.",
+    "IMPROVED CANISTER - Once per game, the Saboteur's IMPROVED CANISTER can be thrown a number of inches equal to their current VITALITY +2. When thrown, the gas canister releases a toxic cloud that covers a 2-inch diameter on one level. All models (enemy or friendly) within the cloud must roll a SKILL Check. If failed, they take 2 damage and are immobilized until the end of their next activation.",
+    "DETERMINATION - Once per round, when a Scavenger fails a SKILL Check, they may choose to re-roll that check. They must take the next result.",
+    "DIRTY DAGGER - Once per game, the Scavenger may spend an action to use DIRTY DAGGER on an opponent in contact. They take 1 damage and are Stunned. This ability ignores DEFENSE Check.",
+    "EARLY BIRD - The Scout may deploy up to 4 inches from the edge of the board on Ground Level. They cannot deploy on a STRUCTURE.",
+    "I CAN SMELL IT - After deployment of all Doom Companies, the Scout may deploy an additional resource cache anywhere within 6 inches from the center of the board on a STRUCTURE. The Reliquary cache consumable may not restore this ability.",
+    "TAKE THE INITIATIVE - Once per game a player with a living Scout may claim initiative after losing the initiative roll. In addition, if there is ever a tie, initiative always goes to the player with a living Scout. If each player has a Scout, resolve normally.",
+    "BERSERKER - If the Reaver begins their activation at 2 or less VITALITY, they get +1 to MOVEMENT and to ATTACKS.",
+    "RELENTLESS - If the Reaver uses both MOVE and DASH during their activation and ends in contact with an enemy, they may ATTACK, but with only a single die.",
+    "BEARING DOWN - Once per game, after a successful COMBAT Check, the Reaver may forgo dealing damage with that Attack. Instead, the target becomes Immobilized.",
+    "HEAL THE FLOCK - Once per round, a Warrior Priest may spend one action to heal a friendly model in base to base contact for 2 VITALITY, or heal itself for 1 VITALITY.",
+    "LAST RITES - Once per game, a Warrior Priest may perform LAST RITES within 6 inches of where a friendly model Perished after the Warrior Priest's last activation. That Perished model is revived with 1 VITALITY. Place them exactly where they Perished. This does not cost an action. (Until your Warrior Priest has used LAST RITES, mark where friendly models have Perished until the Warrior Priest finishes their next activation.)",
+    "FEAR OF GOD - Once per game, a Warrior Priest may intimidate an enemy within 1 inch instilling the FEAR OF GOD. Push that model 2 inches directly away from the Warrior Priest ignoring Barriers. If that model comes in contact with an edge they fall. They may not make a SKILL Check to prevent themselves from falling. This ability cannot be prevented by a shield.",
+        "MM1",
+        "MM2",
+        "MM3",
+    "OVERDRAW (Bow) - Spend 1 action. Doubles the maximum range for your next ranged attack this round.",
+    "RELOAD (Crossbow) - After firing, must use the Reload action before firing again.",
+    "GUARDED (Shield) - Once per round, the model may use their shield to prevent a PUSH action that targets them.",
+    "CAPTAIN REROLL - Once per game, the Captain may re-roll a single die."
+}
+
 ClassAbilities = { 
     -- assassin
-    NIGHT_STALKER = 1,KILLSHOT = 2,CAMOUFLAGED_CLIMBER = 3,
+    NIGHT_STALKER = ClassAbility:new({name=ClassAbilityNames[1],desc=AbilitiesDesc[1]}),
+    KILLSHOT = ClassAbility:new({name=ClassAbilityNames[2],desc=AbilitiesDesc[2]}),CAMOUFLAGED_CLIMBER = ClassAbility:new({name=ClassAbilityNames[3],desc=AbilitiesDesc[3]}),
     -- beekeepr
-    BECKON_THE_SWARM = 4,STINGING_CLOUD = 5,BUZZING_MANTLE = 6,
+    BECKON_THE_SWARM = ClassAbility:new({name=ClassAbilityNames[4],desc=AbilitiesDesc[4]}),STINGING_CLOUD = ClassAbility:new({name=ClassAbilityNames[5],desc=AbilitiesDesc[5]}),BUZZING_MANTLE = ClassAbility:new({name=ClassAbilityNames[6],desc=AbilitiesDesc[6]}),
     -- executioner 
-    EXECUTIONERS_MARK = 7,FINALITY = 8,AIM_FOR_THE_NECK = 9,
+    EXECUTIONERS_MARK = ClassAbility:new({name=ClassAbilityNames[7],desc=AbilitiesDesc[7]}),FINALITY = ClassAbility:new({name=ClassAbilityNames[8],desc=AbilitiesDesc[8]}),AIM_FOR_THE_NECK = ClassAbility:new({name=ClassAbilityNames[9],desc=AbilitiesDesc[9]}),
     -- blacksmith 
-    PUNCTURING_PRECISION = 10,FORGE_MASTER = 11,SUNDERING_BLOW = 12,
+    PUNCTURING_PRECISION = ClassAbility:new({name=ClassAbilityNames[10],desc=AbilitiesDesc[10]}),FORGE_MASTER = ClassAbility:new({name=ClassAbilityNames[11],desc=AbilitiesDesc[11]}),SUNDERING_BLOW = ClassAbility:new({name=ClassAbilityNames[12],desc=AbilitiesDesc[12]}),
     -- brute 
-    RAGE = 13,SMASH = 14,THROW = 15,
+    RAGE = ClassAbility:new({name=ClassAbilityNames[13],desc=AbilitiesDesc[13]}),SMASH = ClassAbility:new({name=ClassAbilityNames[14],desc=AbilitiesDesc[14]}),THROW = ClassAbility:new({name=ClassAbilityNames[15],desc=AbilitiesDesc[15]}),
     -- doom hunter 
-    EAGLES_EYE = 16,MARKSMANS_FOCUS = 17,PINNING_SHOT = 18,
+    EAGLES_EYE = ClassAbility:new({name=ClassAbilityNames[16],desc=AbilitiesDesc[16]}),MARKSMANS_FOCUS = ClassAbility:new({name=ClassAbilityNames[17],desc=AbilitiesDesc[17]}),PINNING_SHOT = ClassAbility:new({name=ClassAbilityNames[18],desc=AbilitiesDesc[18]}),
     -- fghter 
-    FURY = 19,DEVASTATING_BLOW = 20,OPPORTUNISTS_CLEAVE = 21,
+    FURY = ClassAbility:new({name=ClassAbilityNames[19],desc=AbilitiesDesc[19]}),DEVASTATING_BLOW = ClassAbility:new({name=ClassAbilityNames[20],desc=AbilitiesDesc[20]}),OPPORTUNISTS_CLEAVE = ClassAbility:new({name=ClassAbilityNames[21],desc=AbilitiesDesc[21]}),
     -- hedge 
-    GAUNT_GALLOP = 22, SQUIRE_OF_MUD_AND_ROOT = 23,THE_SHATTERED_SHIELD = 24,
+    GAUNT_GALLOP = ClassAbility:new({name=ClassAbilityNames[22],desc=AbilitiesDesc[22]}), SQUIRE_OF_MUD_AND_ROOT = ClassAbility:new({name=ClassAbilityNames[23],desc=AbilitiesDesc[23]}),THE_SHATTERED_SHIELD = ClassAbility:new({name=ClassAbilityNames[24],desc=AbilitiesDesc[24]}),
     -- kn 
-    SHIELD_OF_THE_REALM = 25,INSPIRING_PRESENCE = 26,DEFENDERS_PARRY = 27,
+    SHIELD_OF_THE_REALM = ClassAbility:new({name=ClassAbilityNames[25],desc=AbilitiesDesc[25]}),INSPIRING_PRESENCE = ClassAbility:new({name=ClassAbilityNames[26],desc=AbilitiesDesc[26]}),DEFENDERS_PARRY = ClassAbility:new({name=ClassAbilityNames[27],desc=AbilitiesDesc[27]}),
     -- saboteur 
-    BOOBY_TRAP = 28,SET_TRAP = 29,IMPROVED_CANISTER = 30,
+    BOOBY_TRAP = ClassAbility:new({name=ClassAbilityNames[28],desc=AbilitiesDesc[28]}),SET_TRAP = ClassAbility:new({name=ClassAbilityNames[29],desc=AbilitiesDesc[29]}),IMPROVED_CANISTER = ClassAbility:new({name=ClassAbilityNames[30],desc=AbilitiesDesc[30]}),
     --scavenger 
-    DETERMINATION = 31,DIRTY_DAGGER = 32,empty_skill_1 = 33,
+    DETERMINATION = ClassAbility:new({name=ClassAbilityNames[31],desc=AbilitiesDesc[31]}),DIRTY_DAGGER = ClassAbility:new({name=ClassAbilityNames[32],desc=AbilitiesDesc[32]}),empty_skill_1 = ClassAbility:new({name=ClassAbilityNames[33],desc=AbilitiesDesc[33]}),
     -- scout 
-    EARLY_BIRD = 34,I_CAN_SMELL_IT = 35,TAKE_THE_INITIATIVE = 36,
+    EARLY_BIRD = ClassAbility:new({name=ClassAbilityNames[34],desc=AbilitiesDesc[34]}),I_CAN_SMELL_IT = ClassAbility:new({name=ClassAbilityNames[35],desc=AbilitiesDesc[35]}),TAKE_THE_INITIATIVE = ClassAbility:new({name=ClassAbilityNames[36],desc=AbilitiesDesc[36]}),
     -- reaver 
-    BERSERKER = 37,RELENTLESS = 38,BEARING_DOWN = 39,
+    BERSERKER = ClassAbility:new({name=ClassAbilityNames[37],desc=AbilitiesDesc[37]}),RELENTLESS = ClassAbility:new({name=ClassAbilityNames[38],desc=AbilitiesDesc[38]}),BEARING_DOWN = ClassAbility:new({name=ClassAbilityNames[39],desc=AbilitiesDesc[39]}),
     -- wpriest 
-    HEAL_THE_FLOCK = 40,LAST_RITES = 41,FEAR_OF_GOD = 42,
+    HEAL_THE_FLOCK = ClassAbility:new({name=ClassAbilityNames[40],desc=AbilitiesDesc[40]}),LAST_RITES = ClassAbility:new({name=ClassAbilityNames[41],desc=AbilitiesDesc[41]}),FEAR_OF_GOD = ClassAbility:new({name=ClassAbilityNames[42],desc=AbilitiesDesc[42]}),
     -- mad mule 
-    MAD_MULE_1 = 43,MAD_MULE_2 = 44,MAD_MULE_3 = 45
+    MAD_MULE_1 = ClassAbility:new({name=ClassAbilityNames[43],desc=AbilitiesDesc[43]}),MAD_MULE_2 = ClassAbility:new({name=ClassAbilityNames[44],desc=AbilitiesDesc[44]}),MAD_MULE_3 = ClassAbility:new({name=ClassAbilityNames[45],desc=AbilitiesDesc[45]}),
+    -- item abilities 
+    BOW_OVERDRAW = ClassAbility:new({name=ClassAbilityNames[46],desc=AbilitiesDesc[46]}), CROSSBOW_RELOAD = ClassAbility:new({name=ClassAbilityNames[47],desc=AbilitiesDesc[47]}), SHIELD_GUARDED = ClassAbility:new({name=ClassAbilityNames[48],desc=AbilitiesDesc[48]}),
+    -- etc 
+    CAPTAIN_REROLL = ClassAbility:new({name=ClassAbilityNames[49],desc=AbilitiesDesc[49]})
 }
 
 DoomClass={}
@@ -134,82 +207,85 @@ function DoomClass:new(o)
 
     o.name = o.name or ClassNames.ASSASSIN
     o.stats = o.stats or ClassStats.ASSASSIN
-    o.abilities = o.abilities or { 1, 2, 3 }
+    o.abilities = o.abilities or { ClassAbilities[1], ClassAbilities[2], ClassAbilities[3] }
+    o.restrictions = o.restrictions or {}
 
     return o 
 end
 
 Classes = { 
-    ASSASSIN = DoomClass:new(),
+    ASSASSIN = DoomClass:new({
+        --restrictions = { Weapons.HEAVY_WEAPON, Weapons.POLEARM_1H, Weapons.POLEARM_2H }
+    }),
     BEEKEEPER = DoomClass:new({
         name = ClassNames.BEEKEEPER ,
         stats = ClassStats.BEEKEEPER ,
-        abilities = { 4, 5, 6 }
+        abilities = { ClassAbilities[4], ClassAbilities[5], ClassAbilities[6] }
     }),
     EXECUTIONER = DoomClass:new({
         name = ClassNames.EXECUTIONER,
         stats = ClassStats.EXECUTIONER , 
-        abilities = { 7, 8, 9 }
+        abilities = { ClassAbilities[7], ClassAbilities[8], ClassAbilities[9] }
     }),
     BLACKSMITH = DoomClass:new({
         name = ClassNames.BLACKSMITH ,
         stats = ClassStats.BLACKSMITH ,
-        abilities = { 10, 11, 12 }
+        abilities = { ClassAbilities[10], ClassAbilities[11], ClassAbilities[12] }
     }),
     BRUTE = DoomClass:new({
         name = ClassNames.BRUTE ,
         stats = ClassStats.BRUTE ,
-        abilities = { 13, 14, 15 }
+        abilities = { ClassAbilities[13], ClassAbilities[14], ClassAbilities[15] }
     }),
     DOOM_HUNTER = DoomClass:new({
         name = ClassNames.DOOM_HUNTER ,
         stats = ClassStats.DOOM_HUNTER ,
-        abilities = { 16, 17, 18 }
+        abilities = { ClassAbilities[16], ClassAbilities[17], ClassAbilities[18] }
     }),
     FIGHTER = DoomClass:new({
         name = ClassNames.FIGHTER ,
         stats = ClassStats.FIGHTER ,
-        abilities = { 19, 20, 21 }
+        abilities = { ClassAbilities[19], ClassAbilities[20], ClassAbilities[21] }
     }),
     HEDGE_KNIGHT = DoomClass:new({
         name = ClassNames.HEDGE_KNIGHT ,
         stats = ClassStats.HEDGE_KNIGHT ,
-        abilities = { 22, 23, 24 }
+        abilities = { ClassAbilities[22], ClassAbilities[23], ClassAbilities[24] }
     }),
     KNIGHT = DoomClass:new({
         name = ClassNames.HEDGE_KNIGHT ,
         stats = ClassStats.HEDGE_KNIGHT ,
-        abilities = { 22, 23, 24 }
+        abilities = { ClassAbilities[25], ClassAbilities[26], ClassAbilities[27] }
     }),
     SABOTEUR = DoomClass:new({
         name = ClassNames.SABOTEUR ,
         stats = ClassStats.SABOTEUR ,
-        abilities = { 28, 29, 30 }
+        abilities = { ClassAbilities[28], ClassAbilities[29], ClassAbilities[30] }
     }),
     SCAVENGER = DoomClass:new({
         name = ClassNames.SCAVENGER ,
         stats = ClassStats.SCAVENGER ,
-        abilities = { 31, 32 }
+        abilities = { ClassAbilities[31], ClassAbilities[32] }
     }),
     SCOUT = DoomClass:new({
         name = ClassNames.SCOUT ,
         stats = ClassStats.SCOUT ,
-        abilities = { 34, 35, 36 }
+        abilities = { ClassAbilities[34], ClassAbilities[35], ClassAbilities[36] }
     }),
     REAVER = DoomClass:new({
         name = ClassNames.REAVER ,
         stats = ClassStats.REAVER ,
-        abilities = { 37, 38, 39 }
+        abilities = { ClassAbilities[37], ClassAbilities[38], ClassAbilities[39] }
     }),
     WARRIOR_PRIEST = DoomClass:new({
         name = ClassNames.WARRIOR_PRIEST ,
         stats = ClassStats.WARRIOR_PRIEST ,
-        abilities = { 40, 41, 42 }
+        abilities = { ClassAbilities[40], ClassAbilities[41], ClassAbilities[42] }
     }),
     MAD_MULE = DoomClass:new({
         name = ClassNames.MAD_MULE,
         stats = ClassStats.MAD_MULE,
-        abilities = { 43, 44, 45 }
+        abilities = { ClassAbilities[43], ClassAbilities[44], ClassAbilities[45] }
     })
 }   
 
@@ -344,8 +420,40 @@ function DoomCompany:new(o)
 
     return o
 end
+
+function importArmyOK()
+    companies = { DoomCompany:new(), DoomCompany:new() }
+    UI.hide("importArmyPanel")
+    PopulateDoomCompany(1, currentCompanyURL .. "?tts=1") 
+    
+    -- DEBUG 
+    for w in companies[1].warriors do 
+       print(dump(w))
+    end
+
+end
+function change_url(a, b, c)
+    --print(a, b, c)
+    currentCompanyURL = b  
+end
+function show_url_window(a)
+    UI.show("importArmyPanel")
+end
+
+
+-- Right now, we give a leeway of 1" in both up/down
+function isSameHeight(a, b)
+    if (a.z > (b.z + 1.0)) then 
+        return false 
+    end
+    if (a.z < (b.z - 1.0)) then 
+        return false 
+    end 
+    return true 
+end
+--print(isSameHeight({x=0,y=0,z=12.42}, {x=0,y=0,z=12.32}))
+
         --      player1             player2
-companies = { DoomCompany:new(), DoomCompany:new() }
 
 function AssignStats(c)
     c.mov = c.class.stats[1]
@@ -429,6 +537,7 @@ end
 -- TODO add descriptions 
 
 function onLoad()
+    --doom_res = getObjectFromGUID("ac0836").getLuaScript()
 end
 
 function onUpdate()
