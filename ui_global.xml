@@ -1,0 +1,47 @@
+<panel id="importArmyPanel" width="720" height="720" color="#901010">
+<tablelayout>
+<row>
+<text color="#c0c0c0" fontSize="48"><b>1490 DOOM Company Import</b>
+</text>
+</row>
+<row>
+<text color="#e0e0e0" fontSize="28">
+<b>Paste your 1490 DOOM Company Builder share link
+into the URL box below!</b>
+</text>
+</row>
+<row>
+<text color="#c0c0c0" fontSize="20">
+1. Go to https://1490doomcompanybuilder.com
+</text>
+</row>
+<row>
+<text color="#c0c0c0" fontSize="20">
+2. Design your Doom Company!
+</text>
+</row>
+<row>
+<text color="#c0c0c0" fontSize="20">
+3. Click the Share Link icon and copy the URL to your clipboard
+</text>
+</row>
+<row>
+<text color="#c0c0c0" fontSize="20">
+4. Click the text field below, then Ctrl+V to paste the URL
+</text>
+</row>
+<row>
+<inputfield onValueChanged="change_url" id="urlinput" characterLimit="0" lineType="MultiLineNewLine" width="500" />
+</row>
+<row>
+<button onClick="importArmyOK" width="100" label="OK" text="OK" height="50" >OK</button>
+</row>
+<row>
+    <text color="#c0c0c0" fontSize="18">
+        * You can close this window by clicking OK and open it again at any time by
+        clicking the Import Army button on the table.
+    </text>
+</row>
+</tablelayout>
+</panel>
+

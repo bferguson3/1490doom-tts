@@ -11,6 +11,27 @@ player2VP = 0 -- probably not used until end of game?
 p1resourcesObtained = 0
 p2resourcesObtained = 0
 -- kills and high ground calculated in funcs 
+currentCompanyURL = ""
+
+
+function importArmyOK()
+    UI.hide("importArmyPanel")
+    PopulateDoomCompany(1, currentCompanyURL .. "?tts=1") 
+    
+    -- DEBUG 
+    for w in companies[1].warriors do 
+       print(dump(w))
+    end
+
+end
+function change_url(a, b, c)
+    --print(a, b, c)
+    currentCompanyURL = b  
+end
+function show_url_window(a)
+    UI.show("importArmyPanel")
+end
+
 
 -- Right now, we give a leeway of 1" in both up/down
 function isSameHeight(a, b)
@@ -111,9 +132,9 @@ function DoomClass:new(o)
     setmetatable(o, self)
     self.__index = self 
 
-    o.name = ClassNames.ASSASSIN
-    o.stats = ClassStats.ASSASSIN
-    o.abilities = { 1, 2, 3 }
+    o.name = o.name or ClassNames.ASSASSIN
+    o.stats = o.stats or ClassStats.ASSASSIN
+    o.abilities = o.abilities or { 1, 2, 3 }
 
     return o 
 end
@@ -226,22 +247,26 @@ Weapons = {
     HEAVY_WEAPON = Weapon:new({
         name = "Heavy Weapon",
         damage = 2,
-        twoHanded = true
+        twoHanded = true,
+        desc = "Two-handed. Cannot equip a second weapon."
         --light = false 
     }),
     POLEARM_2H = Weapon:new({
         name = "Polearm (two-handed)", -- Polearm Two-Handed ??
         maxRange = 2,
+        desc = "Two handed. Cannot equip a second weapon.",
         twoHanded = true
     }),
     POLEARM_1H = Weapon:new({
         name = "Polearm (one-handed)",
         maxRange = 2,
+        desc = "Must be paired with a shield. -1 to all Combat checks.",
         oneHandedPenalty = true
     }),
     SHIELD = Weapon:new({
         name = "Shield",
-        isShield = true
+        isShield = true,
+        desc = "Gain +1 defense against the first attack each round. Grants the Guarded ability (once per round, this model may use their shield to prevent a PUSH action that targets them.)"
     }),
     BOW = Weapon:new(
     {
@@ -250,7 +275,8 @@ Weapons = {
         minRange = 1,
         maxRange = 5,
         overdraw = true,
-        onlyWeapon = true
+        onlyWeapon = true,
+        desc = "Two-handed ranged. Cannot equip a second weapon. Adds the Overdraw action (spend 1 action to double the maximum range of the next attack)."
     }),
     CROSSBOW = Weapon:new({
         name = "Crossbow",
@@ -258,7 +284,8 @@ Weapons = {
         minRange = 1,
         maxRange = 5,
         onlyWeapon = true,
-        reload = true
+        reload = true,
+        desc = "Two-handed ranged. Cannot equip a second weapon. Adds the Reload action (after firing, must use the Reload action before firing again)."
     })
 }
 ClimbingItems = { 
@@ -342,11 +369,12 @@ function PopulateDoomCompany(player, url)
         return 
     end
     jsonData = JSON.decode(dc_data.text)
+    print(dc_data.text)
     -- name 
     for i=1,3 do 
 
         companies[player].warriors[i].name = jsonData.warriors[i].name
-    --for i=1,3 do --class 
+    
         if jsonData.warriors[i].type == "Brute" then companies[player].warriors[i].class = Classes.BRUTE
         elseif jsonData.warriors[i].type == "Assassin" then companies[player].warriors[i].class = Classes.ASSASSIN
         elseif jsonData.warriors[i].type == "Beekeeper" then companies[player].warriors[i].class = Classes.BEEKEEPER
@@ -363,11 +391,10 @@ function PopulateDoomCompany(player, url)
         elseif jsonData.warriors[i].type == "Warrior Priest" then companies[player].warriors[i].class = Classes.WARRIOR_PRIEST
         elseif jsonData.warriors[i].type == "Mad Mule" then companies[player].warriors[i].class = Classes.MAD_MULE
         end
+    
         AssignStats(companies[player].warriors[i])
-    --end
-    --for i=1,3 do 
+    
         if jsonData.warriors[i].isCaptain==true then companies[player].warriors[i].isCaptain = true end --end -- captain ?
-    --for i=1,3 do 
         for k,v in pairs(Weapons) do     -- assign weapon1 info to the warrior based on its name given in json 
             if(jsonData.warriors[i].weapon1 == v.name) then 
                 companies[player].warriors[i].weapon1 = v
@@ -376,8 +403,7 @@ function PopulateDoomCompany(player, url)
                 companies[player].warriors[i].weapon2 = v
             end
         end 
-    --end 
-    --for i=1,3 do 
+    
         for k,v in pairs(Consumables) do 
             --print(k,v,jsonData.warriors[i].consumable)
             if jsonData.warriors[i].consumable == v then 
@@ -402,17 +428,21 @@ end
 
 -- TODO add descriptions 
 
---[[ The onLoad event is called after the game save finishes loading. --]]
 function onLoad()
-    PopulateDoomCompany(1, "https://1490doomcompanybuilder.com/s/14cjjjx" .. "?tts=1")
-    print(companies[1].warriors[1].class)
-    print(companies[1].warriors[1].weapon1.name)
-    print(companies[1].warriors[1].consumable)
-    print(companies[1].warriors[1].climbing)
-    print(companies[1].warriors[1].statImprove[1])
 end
 
---[[ The onUpdate event is called once per frame. --]]
 function onUpdate()
-    --[[ print('onUpdate loop!') --]]
+end
+
+function dump(o)
+   if type(o) == 'table' then
+      local s = '{ '
+      for k,v in pairs(o) do
+         if type(k) ~= 'number' then k = '"'..k..'"' end
+         s = s .. '['..k..'] = ' .. dump(v) .. ','
+      end
+      return s .. '} '
+   else
+      return tostring(o)
+   end
 end
