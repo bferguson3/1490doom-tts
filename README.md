@@ -6,3 +6,6 @@ All files in this repository are (c) 2026 Buer Games Ltd. All rights reserved.
 
 ### 1490doom.lua
 Main mod code file.
+
+### ui_global.xml 
+Main UI descriptor file.
