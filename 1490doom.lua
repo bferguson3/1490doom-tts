@@ -18,6 +18,7 @@ companies = {}
 -- when testing locally
 --dofile("1490res.lua")
 --load("")
+
 -- Name:
 -- Charname   [ 5 / 5 ]
 -- Desc:
@@ -32,7 +33,71 @@ companies = {}
 -- Concentrated Creeping Death Serum <- comsunable (or no line)
 -- (always 1 line seperator)
 -- Abilities
+-- Classes.ASSASSIN.abilities.name
+-- 
+function MakeDescription(c, _pos)
+    local show_empty_equipment = true
+    local has_shield = false
+    local d = ""
+    local sta = c.GetStats()
+    d = d .. c.class.name .. '\n'
+    d = d .. "[ff2020]Mov.  Atk.  Vit.  Skl.  Def.  Com.[-]\n"
+    d = d .. "  " .. sta[1] .. "       " .. sta[2] .. "       " .. sta[3] .. "     " 
+    d = d .. sta[4] .. "+     " .. sta[5] .. "+     " .. sta[6] .. "+\n\n[ff2020]Equipment[-]\n"
+    d = d .. c.weapon1.name .. " [c0c020](" .. c.weapon1.damage .. " Dmg, "
+    if c.weapon1.minRange == 0 then 
+        if c.weapon1.maxRange > 0.5 then
+            d = d .. c.weapon1.maxRange .. "\")\n"
+        else
+            d = d.."Base)\n" 
+        end 
+    else 
+        d = d .. c.weapon1.minRange .. "-" .. c.weapon1.maxRange .. "\")\n"
+    end
+    d = d .. "[-]"
+    if c.weapon2 then 
+        if c.weapon2 == Weapons.SHIELD then 
+            d = d .. "Shield\n"
+            has_shield = true
+        else 
+            d = d .. c.weapon2.name .. "[c0c020](" .. c.weapon2.damage .. " Dmg, "
+            if c.weapon2.minRange == 0 then 
+                if c.weapon2.maxRange > 0.5 then
+                    d = d .. c.weapon2.maxRange .. "\")\n"
+                else
+                    d = d.."Base)\n" 
+                end 
+            else 
+                d = d .. c.weapon2.minRange .. "-" .. c.weapon2.maxRange .. "\")\n"
+            end
+        end
+    end
+    d = d .. "[-]"
+    if c.climbing then 
+        d = d .. c.climbing .. "\n"
+    end 
+    if c.consumable then 
+        d = d .. c.consumable .. "\n"
+    end
+    d = d .. "\n[ff2020]Abilities[-]\n"
+    for i=1,#c.class.abilities do 
+       d = d .. c.class.abilities[i].name .. "\n"
+    end
+    if has_shield then d = d .. "Guarded\n" end 
+    
+    -- testing spawn
+    local o = spawnObject({
+        type = "PlayerPawn",
+        position = _pos 
+    })
+    o.setDescription(d)
+    local nm = c.name 
+    if nm == nil then nm = c.class.name end 
+    nm = nm .. "    [ [a0ffa0]" .. c.cur_vit .. " [-]/ [a0ffa0]" .. c.vit .. " [-]]"
+    o.setName(nm)
 
+    return d
+end
 
 ResourceItems = { 
     HERBS_AND_TONIC = 1, -- +3 vit 
@@ -89,8 +154,8 @@ function ClassAbility:new(o)
     setmetatable(o, self)
     self.__index = self
 
-    o.name = ClassAbilityNames[1]
-    o.desc = AbilitiesDesc[1]
+    o.name = o.name or ClassAbilityNames[1]
+    o.desc = o.desc or AbilitiesDesc[1]
 
     return o
 end
@@ -101,7 +166,7 @@ ClassAbilityNames = {
     "Puncturing Precision", "Forge Master", "Sundering Blow",
     "Rage", "Smash", "Throw", "Eagle's Eye", "Marksman's Focus", "Pinning Shot",
     "Fury", "Devastating Blow", "Opportunist's Cleave", "Gaunt Gallop", 
-    "Squre of Mud and Root", "The Shattered Shield", "Shield of the Realm",
+    "Squire of Mud and Root", "The Shattered Shield", "Shield of the Realm",
     "Inspiring Presence", "Defender's Parry", "Booby Trap", "Set Trap", 
     "Improved Canister", "Determination", "Dirty Dagger", "",
     "Early Bird", "I Can Smell It", "Take the Initiative", "Berserker",
@@ -163,8 +228,7 @@ AbilitiesDesc = {
 
 ClassAbilities = { 
     -- assassin
-    NIGHT_STALKER = ClassAbility:new({name=ClassAbilityNames[1],desc=AbilitiesDesc[1]}),
-    KILLSHOT = ClassAbility:new({name=ClassAbilityNames[2],desc=AbilitiesDesc[2]}),CAMOUFLAGED_CLIMBER = ClassAbility:new({name=ClassAbilityNames[3],desc=AbilitiesDesc[3]}),
+    NIGHT_STALKER = ClassAbility:new({name=ClassAbilityNames[1],desc=AbilitiesDesc[1]}), KILLSHOT = ClassAbility:new({name=ClassAbilityNames[2],desc=AbilitiesDesc[2]}),CAMOUFLAGED_CLIMBER = ClassAbility:new({name=ClassAbilityNames[3],desc=AbilitiesDesc[3]}),
     -- beekeepr
     BECKON_THE_SWARM = ClassAbility:new({name=ClassAbilityNames[4],desc=AbilitiesDesc[4]}),STINGING_CLOUD = ClassAbility:new({name=ClassAbilityNames[5],desc=AbilitiesDesc[5]}),BUZZING_MANTLE = ClassAbility:new({name=ClassAbilityNames[6],desc=AbilitiesDesc[6]}),
     -- executioner 
@@ -207,9 +271,9 @@ function DoomClass:new(o)
 
     o.name = o.name or ClassNames.ASSASSIN
     o.stats = o.stats or ClassStats.ASSASSIN
-    o.abilities = o.abilities or { ClassAbilities[1], ClassAbilities[2], ClassAbilities[3] }
+    o.abilities = o.abilities or { ClassAbilities.NIGHT_STALKER, ClassAbilities.KILLSHOT, ClassAbilities.CAMOUFLAGED_CLIMBER }
     o.restrictions = o.restrictions or {}
-
+    
     return o 
 end
 
@@ -220,72 +284,72 @@ Classes = {
     BEEKEEPER = DoomClass:new({
         name = ClassNames.BEEKEEPER ,
         stats = ClassStats.BEEKEEPER ,
-        abilities = { ClassAbilities[4], ClassAbilities[5], ClassAbilities[6] }
+        abilities = { ClassAbilities.BECKON_THE_SWARM, ClassAbilities.STINGING_CLOUD, ClassAbilities.BUZZING_MANTLE }
     }),
     EXECUTIONER = DoomClass:new({
         name = ClassNames.EXECUTIONER,
         stats = ClassStats.EXECUTIONER , 
-        abilities = { ClassAbilities[7], ClassAbilities[8], ClassAbilities[9] }
+        abilities = { ClassAbilities.EXECUTIONERS_MARK, ClassAbilities.FINALITY, ClassAbilities.AIM_FOR_THE_NECK }
     }),
     BLACKSMITH = DoomClass:new({
         name = ClassNames.BLACKSMITH ,
         stats = ClassStats.BLACKSMITH ,
-        abilities = { ClassAbilities[10], ClassAbilities[11], ClassAbilities[12] }
+        abilities = { ClassAbilities.PUNCTURING_PRECISION, ClassAbilities.FORGE_MASTER, ClassAbilities.SUNDERING_BLOW }
     }),
     BRUTE = DoomClass:new({
         name = ClassNames.BRUTE ,
         stats = ClassStats.BRUTE ,
-        abilities = { ClassAbilities[13], ClassAbilities[14], ClassAbilities[15] }
+        abilities = { ClassAbilities.RAGE, ClassAbilities.SMASH, ClassAbilities.THROW }
     }),
     DOOM_HUNTER = DoomClass:new({
         name = ClassNames.DOOM_HUNTER ,
         stats = ClassStats.DOOM_HUNTER ,
-        abilities = { ClassAbilities[16], ClassAbilities[17], ClassAbilities[18] }
+        abilities = { ClassAbilities.EAGLES_EYE, ClassAbilities.MARKSMANS_FOCUS, ClassAbilities.PINNING_SHOT }
     }),
     FIGHTER = DoomClass:new({
         name = ClassNames.FIGHTER ,
         stats = ClassStats.FIGHTER ,
-        abilities = { ClassAbilities[19], ClassAbilities[20], ClassAbilities[21] }
+        abilities = { ClassAbilities.FURY, ClassAbilities.DEVASTATING_BLOW, ClassAbilities.OPPORTUNISTS_CLEAVE }
     }),
     HEDGE_KNIGHT = DoomClass:new({
         name = ClassNames.HEDGE_KNIGHT ,
         stats = ClassStats.HEDGE_KNIGHT ,
-        abilities = { ClassAbilities[22], ClassAbilities[23], ClassAbilities[24] }
+        abilities = { ClassAbilities.GAUNT_GALLOP, ClassAbilities.SQUIRE_OF_MUD_AND_ROOT, ClassAbilities.THE_SHATTERED_SHIELD }
     }),
     KNIGHT = DoomClass:new({
         name = ClassNames.HEDGE_KNIGHT ,
         stats = ClassStats.HEDGE_KNIGHT ,
-        abilities = { ClassAbilities[25], ClassAbilities[26], ClassAbilities[27] }
+        abilities = { ClassAbilities.SHIELD_OF_THE_REALM, ClassAbilities.INSPIRING_PRESENCE, ClassAbilities.DEFENDERS_PARRY }
     }),
     SABOTEUR = DoomClass:new({
         name = ClassNames.SABOTEUR ,
         stats = ClassStats.SABOTEUR ,
-        abilities = { ClassAbilities[28], ClassAbilities[29], ClassAbilities[30] }
+        abilities = { ClassAbilities.BOOBY_TRAP, ClassAbilities.SET_TRAP, ClassAbilities.IMPROVED_CANISTER }
     }),
     SCAVENGER = DoomClass:new({
         name = ClassNames.SCAVENGER ,
         stats = ClassStats.SCAVENGER ,
-        abilities = { ClassAbilities[31], ClassAbilities[32] }
+        abilities = { ClassAbilities.DETERMINATION, ClassAbilities.DIRTY_DAGGER }
     }),
     SCOUT = DoomClass:new({
         name = ClassNames.SCOUT ,
         stats = ClassStats.SCOUT ,
-        abilities = { ClassAbilities[34], ClassAbilities[35], ClassAbilities[36] }
+        abilities = { ClassAbilities.EARLY_BIRD, ClassAbilities.I_CAN_SMELL_IT, ClassAbilities.TAKE_THE_INITIATIVE }
     }),
     REAVER = DoomClass:new({
         name = ClassNames.REAVER ,
         stats = ClassStats.REAVER ,
-        abilities = { ClassAbilities[37], ClassAbilities[38], ClassAbilities[39] }
+        abilities = { ClassAbilities.BERSERKER, ClassAbilities.RELENTLESS, ClassAbilities.BEARING_DOWN }
     }),
     WARRIOR_PRIEST = DoomClass:new({
         name = ClassNames.WARRIOR_PRIEST ,
         stats = ClassStats.WARRIOR_PRIEST ,
-        abilities = { ClassAbilities[40], ClassAbilities[41], ClassAbilities[42] }
+        abilities = { ClassAbilities.HEAL_THE_FLOCK, ClassAbilities.LAST_RITES, ClassAbilities.FEAR_OF_GOD }
     }),
     MAD_MULE = DoomClass:new({
         name = ClassNames.MAD_MULE,
         stats = ClassStats.MAD_MULE,
-        abilities = { ClassAbilities[43], ClassAbilities[44], ClassAbilities[45] }
+        abilities = {  }
     })
 }   
 
@@ -381,7 +445,7 @@ function DoomWarrior:new(o)
     self.__index = self
 
     o.class = o.class or Classes.FIGHTER
-    o.name = o.name or "No-name"
+    o.name = o.name or nil
     o.isCaptain = o.isCaptain or false 
     o.weapon1 = o.weapon1 or Weapons.LIGHT_WEAPON
     o.weapon2 = o.weapon2 or nil
@@ -402,6 +466,24 @@ function DoomWarrior:new(o)
     o.dead = o.dead or false 
 
     o.resources = { } -- list of e.g. ResourceItems.HERBS_AND_TONIC
+    
+    o.GetStats = function()
+        local sta = { o.mov, o.atk, o.vit, o.skl, o.def, o.com }
+        for i=1,#o.statImprove do 
+            if string.find(o.statImprove[i], "MOV") then 
+                sta[1] = sta[1] + 1
+            elseif string.find(o.statImprove[i], "VIT") then 
+                sta[3] = sta[3] + 1
+            elseif string.find(o.statImprove[i], "SKL") then 
+                sta[4] = sta[4] + 1
+            elseif string.find(o.statImprove[i], "DEF") then 
+                sta[5] = sta[5] + 1
+            elseif string.find(o.statImprove[i], "COM") then 
+                sta[6] = sta[6] + 1
+            end
+        end
+        return sta
+    end
 
     return o
 end
@@ -426,11 +508,9 @@ function importArmyOK()
     UI.hide("importArmyPanel")
     PopulateDoomCompany(1, currentCompanyURL .. "?tts=1") 
     
-    -- DEBUG 
-    for w in companies[1].warriors do 
-       print(dump(w))
+    for i=1,3 do
+        MakeDescription(companies[1].warriors[i], {i, 0, 0})
     end
-
 end
 function change_url(a, b, c)
     --print(a, b, c)
@@ -506,9 +586,11 @@ function PopulateDoomCompany(player, url)
         for k,v in pairs(Weapons) do     -- assign weapon1 info to the warrior based on its name given in json 
             if(jsonData.warriors[i].weapon1 == v.name) then 
                 companies[player].warriors[i].weapon1 = v
+                
             end
             if(jsonData.warriors[i].weapon2 == v.name) then 
                 companies[player].warriors[i].weapon2 = v
+                
             end
         end 
     
@@ -526,6 +608,8 @@ function PopulateDoomCompany(player, url)
         for u in jsonData.warriors[i].ipUpgrades do 
             if string.find(u, "stat_") then 
                 table.insert(companies[player].warriors[i].statImprove, u)
+            else 
+                table.insert(companies[player].warriors[i].ipUpgrades, u)
             end
         end
         companies[player].warriors[i].earnedIp = jsonData.warriors[i].earnedIp
@@ -537,7 +621,7 @@ end
 -- TODO add descriptions 
 
 function onLoad()
-    --doom_res = getObjectFromGUID("ac0836").getLuaScript()
+    
 end
 
 function onUpdate()
