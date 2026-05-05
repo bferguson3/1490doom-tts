@@ -9,3 +9,9 @@ Main mod code file.
 
 ### ui_global.xml 
 Main UI descriptor file.
+
+### btn_*.lua
+Code for button objects
+
+### warriorscript.lua
+Script copied into newly spawned Doom Company warriors
