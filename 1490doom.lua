@@ -81,6 +81,10 @@ function SpawnDoomer(c, _pos)
     o.setName(nm)
     o.measure_movement = true 
 
+    local _sc = getObjectFromGUID("2cf58e").getLuaScript()
+    o.setLuaScript(_sc)
+    o.reload()
+
     --return d
 end
 
