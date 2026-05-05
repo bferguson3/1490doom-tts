@@ -13,29 +13,13 @@ p2resourcesObtained = 0
 -- kills and high ground calculated in funcs 
 currentCompanyURL = ""
 companies = {}
+lastLoadFailed = false 
 
---load(doom_res)
--- when testing locally
---dofile("1490res.lua")
---load("")
+function import_company(btn, _b, _c)
+    UI.show("importArmyPanel")
+end
 
--- Name:
--- Charname   [ 5 / 5 ]
--- Desc:
--- Warrior Priest
--- Mov.  Atk.  Vit.  Skl.  Def.  Com.  
---  4     1     5     4+    5+    5+   <- CURRENT, not base.
--- 
--- Equipment
--- Light Weapon (1 Dmg, Base) <- wpn A and damage + range 
--- Shield <- wpn B and damge+range if wpn 
--- Ladder <- climbing item (or no line)
--- Concentrated Creeping Death Serum <- comsunable (or no line)
--- (always 1 line seperator)
--- Abilities
--- Classes.ASSASSIN.abilities.name
--- 
-function MakeDescription(c, _pos)
+function SpawnDoomer(c, _pos)
     local show_empty_equipment = true
     local has_shield = false
     local d = ""
@@ -95,8 +79,9 @@ function MakeDescription(c, _pos)
     if nm == nil then nm = c.class.name end 
     nm = nm .. "    [ [a0ffa0]" .. c.cur_vit .. " [-]/ [a0ffa0]" .. c.vit .. " [-]]"
     o.setName(nm)
+    o.measure_movement = true 
 
-    return d
+    --return d
 end
 
 ResourceItems = { 
@@ -508,9 +493,14 @@ function importArmyOK()
     UI.hide("importArmyPanel")
     PopulateDoomCompany(1, currentCompanyURL .. "?tts=1") 
     
-    for i=1,3 do
-        MakeDescription(companies[1].warriors[i], {i, 0, 0})
+    if lastLoadFailed == false then 
+        SpawnDoomer(companies[1].warriors[1], {-23, 1, -2})
+        SpawnDoomer(companies[1].warriors[2], {-22, 1, -1})
+        SpawnDoomer(companies[1].warriors[3], {-24, 1, -1})
     end
+
+    currentCompanyURL = ""
+    UI.setAttribute("urlinput", "Text", "")
 end
 function change_url(a, b, c)
     --print(a, b, c)
@@ -546,7 +536,7 @@ function AssignStats(c)
 end
 
 function PopulateDoomCompany(player, url)
-    
+    lastLoadFailed = false
     local dc = DoomCompany:new()
     -- Uncomment this in TTS: 
     dc_data = WebRequest.custom(url, "GET", true, "", { ["User-Agent"] = "tts-1490doom" })
@@ -554,10 +544,16 @@ function PopulateDoomCompany(player, url)
     end 
     if dc_data.text == ""  then  
         print("Failed to obtain Doom Company data from provided URL.")
+        lastLoadFailed = true 
         return 
     end
     jsonData = JSON.decode(dc_data.text)
-    print(dc_data.text)
+    if type(jsonData)~=type({}) then 
+        print("Failed to obtain Doom Company data from provided URL.")
+        lastLoadFailed = true 
+        return
+    end
+    --print(dc_data.text)
     -- name 
     for i=1,3 do 
 
