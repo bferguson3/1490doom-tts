@@ -15,13 +15,15 @@ currentCompanyURL = ""
 companies = {}
 lastLoadFailed = false 
 
+-- Button: display import army panel 
 function import_company(btn, _b, _c)
     UI.show("importArmyPanel")
 end
 
+-- Create description and spawn doom warrior 
 function SpawnDoomer(c, _pos)
-    local show_empty_equipment = true
-    local has_shield = false
+    local show_empty_equipment = false -- not implemented yet 
+    local has_shield = false -- to add Guarded skill 
     local d = ""
     local sta = c.GetStats()
     d = d .. c.class.name .. '\n'
@@ -29,13 +31,13 @@ function SpawnDoomer(c, _pos)
     d = d .. "  " .. sta[1] .. "       " .. sta[2] .. "       " .. sta[3] .. "     " 
     d = d .. sta[4] .. "+     " .. sta[5] .. "+     " .. sta[6] .. "+\n\n[ff2020]Equipment[-]\n"
     d = d .. c.weapon1.name .. " [c0c020](" .. c.weapon1.damage .. " Dmg, "
-    if c.weapon1.minRange == 0 then 
-        if c.weapon1.maxRange > 0.5 then
+    if c.weapon1.minRange == 0 then -- melee 
+        if c.weapon1.maxRange > 0.5 then -- polearms 
             d = d .. c.weapon1.maxRange .. "\")\n"
-        else
+        else 
             d = d.."Base)\n" 
         end 
-    else 
+    else -- ranged 
         d = d .. c.weapon1.minRange .. "-" .. c.weapon1.maxRange .. "\")\n"
     end
     d = d .. "[-]"
@@ -45,13 +47,13 @@ function SpawnDoomer(c, _pos)
             has_shield = true
         else 
             d = d .. c.weapon2.name .. "[c0c020](" .. c.weapon2.damage .. " Dmg, "
-            if c.weapon2.minRange == 0 then 
-                if c.weapon2.maxRange > 0.5 then
+            if c.weapon2.minRange == 0 then -- melee 
+                if c.weapon2.maxRange > 0.5 then -- polearms 
                     d = d .. c.weapon2.maxRange .. "\")\n"
                 else
                     d = d.."Base)\n" 
                 end 
-            else 
+            else -- ranged 
                 d = d .. c.weapon2.minRange .. "-" .. c.weapon2.maxRange .. "\")\n"
             end
         end
@@ -69,18 +71,20 @@ function SpawnDoomer(c, _pos)
     end
     if has_shield then d = d .. "Guarded\n" end 
     
-    -- testing spawn
+    -- Spawn the player object 
     local o = spawnObject({
-        type = "PlayerPawn",
+        type = "PlayerPawn", -- temp 
         position = _pos 
     })
-    o.setDescription(d)
+    o.setDescription(d) 
+    -- now get the name and health 
     local nm = c.name 
     if nm == nil then nm = c.class.name end 
     nm = nm .. "    [ [a0ffa0]" .. c.cur_vit .. " [-]/ [a0ffa0]" .. c.vit .. " [-]]"
     o.setName(nm)
+    -- enable measuring when moved 
     o.measure_movement = true 
-
+    -- append script for visible ranges 
     local _sc = getObjectFromGUID("2cf58e").getLuaScript()
     o.setLuaScript(_sc)
     o.reload()
@@ -261,7 +265,7 @@ function DoomClass:new(o)
     o.name = o.name or ClassNames.ASSASSIN
     o.stats = o.stats or ClassStats.ASSASSIN
     o.abilities = o.abilities or { ClassAbilities.NIGHT_STALKER, ClassAbilities.KILLSHOT, ClassAbilities.CAMOUFLAGED_CLIMBER }
-    o.restrictions = o.restrictions or {}
+    o.restrictions = o.restrictions or {} -- maybe not used 
     
     return o 
 end
@@ -457,6 +461,8 @@ function DoomWarrior:new(o)
     o.resources = { } -- list of e.g. ResourceItems.HERBS_AND_TONIC
     
     o.GetStats = function()
+    -- this is so that we get the accurate CURRENT stats instead of base. 
+    -- we dont want to override base. 
         local sta = { o.mov, o.atk, o.vit, o.skl, o.def, o.com }
         for i=1,#o.statImprove do 
             if string.find(o.statImprove[i], "MOV") then 
@@ -492,24 +498,30 @@ function DoomCompany:new(o)
     return o
 end
 
+-- When we click OK on the import army window 
 function importArmyOK()
+    -- reset the doom companies 
+    -- TODO: fix this for multiple players 
     companies = { DoomCompany:new(), DoomCompany:new() }
     UI.hide("importArmyPanel")
     PopulateDoomCompany(1, currentCompanyURL .. "?tts=1") 
     
     if lastLoadFailed == false then 
+        -- if we didnt fail, then spawn the warriors 
         SpawnDoomer(companies[1].warriors[1], {-23, 1, -2})
         SpawnDoomer(companies[1].warriors[2], {-22, 1, -1})
         SpawnDoomer(companies[1].warriors[3], {-24, 1, -1})
     end
-
+    -- clear the URL 
     currentCompanyURL = ""
     UI.setAttribute("urlinput", "Text", "")
 end
+
+-- called on input change  
 function change_url(a, b, c)
-    --print(a, b, c)
     currentCompanyURL = b  
 end
+-- show import win
 function show_url_window(a)
     UI.show("importArmyPanel")
 end
@@ -525,10 +537,8 @@ function isSameHeight(a, b)
     end 
     return true 
 end
---print(isSameHeight({x=0,y=0,z=12.42}, {x=0,y=0,z=12.32}))
 
-        --      player1             player2
-
+-- helper function
 function AssignStats(c)
     c.mov = c.class.stats[1]
     c.atk = c.class.stats[2]
@@ -539,14 +549,16 @@ function AssignStats(c)
     c.com = c.class.stats[6]
 end
 
+-- actually populate the internal data 
 function PopulateDoomCompany(player, url)
     lastLoadFailed = false
     local dc = DoomCompany:new()
-    -- Uncomment this in TTS: 
+    
     dc_data = WebRequest.custom(url, "GET", true, "", { ["User-Agent"] = "tts-1490doom" })
-    while not dc_data.is_done do 
+    while not dc_data.is_done do -- wait until we get the json file completely 
     end 
-    if dc_data.text == ""  then  
+    
+    if dc_data.text == ""  then 
         print("Failed to obtain Doom Company data from provided URL.")
         lastLoadFailed = true 
         return 
@@ -557,12 +569,11 @@ function PopulateDoomCompany(player, url)
         lastLoadFailed = true 
         return
     end
-    --print(dc_data.text)
-    -- name 
-    for i=1,3 do 
-
-        companies[player].warriors[i].name = jsonData.warriors[i].name
     
+    for i=1,3 do 
+        -- name 
+        companies[player].warriors[i].name = jsonData.warriors[i].name
+        -- class 
         if jsonData.warriors[i].type == "Brute" then companies[player].warriors[i].class = Classes.BRUTE
         elseif jsonData.warriors[i].type == "Assassin" then companies[player].warriors[i].class = Classes.ASSASSIN
         elseif jsonData.warriors[i].type == "Beekeeper" then companies[player].warriors[i].class = Classes.BEEKEEPER
@@ -579,32 +590,32 @@ function PopulateDoomCompany(player, url)
         elseif jsonData.warriors[i].type == "Warrior Priest" then companies[player].warriors[i].class = Classes.WARRIOR_PRIEST
         elseif jsonData.warriors[i].type == "Mad Mule" then companies[player].warriors[i].class = Classes.MAD_MULE
         end
-    
+        -- stats 
         AssignStats(companies[player].warriors[i])
-    
+        -- set captain 
         if jsonData.warriors[i].isCaptain==true then companies[player].warriors[i].isCaptain = true end --end -- captain ?
+        -- assign weapons 
         for k,v in pairs(Weapons) do     -- assign weapon1 info to the warrior based on its name given in json 
             if(jsonData.warriors[i].weapon1 == v.name) then 
                 companies[player].warriors[i].weapon1 = v
-                
             end
             if(jsonData.warriors[i].weapon2 == v.name) then 
                 companies[player].warriors[i].weapon2 = v
-                
             end
         end 
-    
+        -- consumable item? 
         for k,v in pairs(Consumables) do 
-            --print(k,v,jsonData.warriors[i].consumable)
             if jsonData.warriors[i].consumable == v then 
                 companies[player].warriors[i].consumable = v
             end 
         end
+        -- climbing item?
         for k,v in pairs(ClimbingItems) do 
             if jsonData.warriors[i].climbing == v then 
                 companies[player].warriors[i].climbing = v 
             end
         end
+        -- count any stat upgrades separately 
         for u in jsonData.warriors[i].ipUpgrades do 
             if string.find(u, "stat_") then 
                 table.insert(companies[player].warriors[i].statImprove, u)
@@ -612,21 +623,19 @@ function PopulateDoomCompany(player, url)
                 table.insert(companies[player].warriors[i].ipUpgrades, u)
             end
         end
+        -- and keep all earned IP just in case 
         companies[player].warriors[i].earnedIp = jsonData.warriors[i].earnedIp
-
     end
-
 end
 
--- TODO add descriptions 
 
 function onLoad()
-    
 end
 
 function onUpdate()
 end
 
+-- lua helper func 
 function dump(o)
    if type(o) == 'table' then
       local s = '{ '
