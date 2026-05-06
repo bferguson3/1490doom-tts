@@ -628,8 +628,12 @@ function PopulateDoomCompany(player, url)
     end
 end
 
+function radToDeg(r)
+    return (r*57.296)
+end
 
 function onLoad()
+   -- print(base64.decode("W3siaWQiOiJtcWpwdGpqIiwidHlwZSI6IjA3LSAxNDkwRE9PTV9Db3JuZXJfU3F1YXJlIDUuMTMuMjUiLCJwb3NpdGlvbiI6Wy01LjA1MTE4NTg4ODE1NjU4NSwwLC0xLjE2OTgzMTI5MDkxOTIwOTVdLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCwwXX0seyJpZCI6InU5cnpudWwiLCJ0eXBlIjoiMDctIDE0OTBET09NX0Nvcm5lcl9TcXVhcmUgNS4xMy4yNSIsInBvc2l0aW9uIjpbLTUuMDUxMTg1ODg4MTU2NTg1LDAsLTUuMTY5ODMxMjkwOTE5MjA5XSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsLTEuNTcwNzk2MzI2Nzk0ODk2Nl19LHsiaWQiOiJydzlrMTh2IiwidHlwZSI6IjEwLTE0OTBET09NX1dhbGwiLCJwb3NpdGlvbiI6Wy01LjA1MTE4NTg4ODE1NjU4NSwwLC0zLjE2OTgzMTI5MDkxOTIwOTVdLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCwwXX0seyJpZCI6InVveWZsNzYiLCJ0eXBlIjoiMDktMTQ5MERPT01fTW9kdWxhcldhbGxzX0ZpbGxlclY1IiwicG9zaXRpb24iOlstMy4wNTExODU4ODgxNTY1ODQ1LDAsLTMuMTY5ODMxMjkwOTE5MjFdLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCwwXX0seyJpZCI6InFnY3ZyaHciLCJ0eXBlIjoiMTItMTQ5MERPT01fTW9kdWxhcl9XYWxsc19TdGFpcnMiLCJwb3NpdGlvbiI6WzAuOTQ4ODE0MTExODQzNDE1OSwwLDIuODMwMTY4NzA5MDgwNzg5N10sInJvdGF0aW9uIjpbLTEuNTcwNzk2MzI2Nzk0ODk2NiwwLDBdfSx7ImlkIjoiNG01MThtMyIsInR5cGUiOiIxMC0xNDkwRE9PTV9XYWxsIiwicG9zaXRpb24iOlstMy4wNTExODU4ODgxNTY1ODQ1LDAsLTEuMTY5ODMxMjkwOTE5MjFdLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCwtNC43MTIzODg5ODAzODQ2OV19LHsiaWQiOiJhdGh5N2VlIiwidHlwZSI6IjEwLTE0OTBET09NX1dhbGwiLCJwb3NpdGlvbiI6Wy0zLjA1MTE4NTg4ODE1NjU4NSwwLC01LjE2OTgzMTI5MDkxOTIxXSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsLTcuODUzOTgxNjMzOTc0NDgzXX0seyJpZCI6InNla3IzaWUiLCJ0eXBlIjoiMDUtMTQ5MERPT01fQ29ybmVyX1JvdW5kX1Rvd2VyIiwicG9zaXRpb24iOlstMC40NTExODU4ODgxNTY1ODU2NywwLC01Ljc2OTgzMTI5MDkxOTIxXSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsLTMuMTQxNTkyNjUzNTg5NzkzXX0seyJpZCI6InFtY3kwZnciLCJ0eXBlIjoiMTAtMTQ5MERPT01fV2FsbCIsInBvc2l0aW9uIjpbLTEuMDUxMTg1ODg4MTU2NTg1MiwwLC0zLjE2OTgzMTI5MDkxOTIxMDNdLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCwtMy4xNDE1OTI2NTM1ODk3OTNdfSx7ImlkIjoidzZvdDZyMiIsInR5cGUiOiIxMC0xNDkwRE9PTV9XYWxsIiwicG9zaXRpb24iOlstMS4wNTExODU4ODgxNTY1ODQ1LDAsLTEuMTY5ODMxMjkwOTE5MjEwM10sInJvdGF0aW9uIjpbLTEuNTcwNzk2MzI2Nzk0ODk2NiwwLC05LjQyNDc3Nzk2MDc2OTM4XX0seyJpZCI6ImRzOTA4MnQiLCJ0eXBlIjoiMTAtMTQ5MERPT01fV2FsbCIsInBvc2l0aW9uIjpbMi45NDg4MTQxMTE4NDM0MTYsMCwtMS4xNjk4MzEyOTA5MTkyMTAzXSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsMF19LHsiaWQiOiJlYjMyemQ3IiwidHlwZSI6IjA5LTE0OTBET09NX01vZHVsYXJXYWxsc19GaWxsZXJWNSIsInBvc2l0aW9uIjpbMi45NDg4MTQxMTE4NDM0MTYsMCwwLjgzMDE2ODcwOTA4MDc4OTddLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCwwXX0seyJpZCI6Im5wNnRycGgiLCJ0eXBlIjoiMTAtMTQ5MERPT01fV2FsbCIsInBvc2l0aW9uIjpbLTEuMDUxMTg1ODg4MTU2NTg0LDAsMC44MzAxNjg3MDkwODA3ODk3XSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsMF19LHsiaWQiOiJkdG43bWk5IiwidHlwZSI6IjEwLTE0OTBET09NX1dhbGwiLCJwb3NpdGlvbiI6WzAuOTQ4ODE0MTExODQzNDE1OCwwLDAuODMwMTY4NzA5MDgwNzg5N10sInJvdGF0aW9uIjpbLTEuNTcwNzk2MzI2Nzk0ODk2NiwwLC0xLjU3MDc5NjMyNjc5NDg5NjZdfSx7ImlkIjoibHlhMHFvdCIsInR5cGUiOiIwMy0xNDkwRE9PTV9Db3JuZXJfUm91bmQiLCJwb3NpdGlvbiI6Wy0xLjA1MTE4NTg4ODE1NjU4NCwwLDIuODMwMTY4NzA5MDgwNzg5N10sInJvdGF0aW9uIjpbLTEuNTcwNzk2MzI2Nzk0ODk2NiwwLDBdfSx7ImlkIjoibm5mNXI0dSIsInR5cGUiOiIwMy0xNDkwRE9PTV9Db3JuZXJfUm91bmQiLCJwb3NpdGlvbiI6WzIuOTQ4ODE0MTExODQzNDE2LDAsMi44MzAxNjg3MDkwODA3ODk3XSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsLTQuNzEyMzg4OTgwMzg0NjldfSx7ImlkIjoibno3b2drcCIsInR5cGUiOiIwNS0xNDkwRE9PTV9Db3JuZXJfUm91bmRfVG93ZXIiLCJwb3NpdGlvbiI6WzUuNTQ4ODE0MTExODQzNDE2LDAsMS40MzAxNjg3MDkwODA3ODk3XSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsMS41NzA3OTYzMjY3OTQ4OTY2XX0seyJpZCI6InJwd3dkdDIiLCJ0eXBlIjoiMDctIDE0OTBET09NX0Nvcm5lcl9TcXVhcmUgNS4xMy4yNSIsInBvc2l0aW9uIjpbNC45NDg4MTQxMTE4NDM0MTcsMCwtMy4xNjk4MzEyOTA5MTkyMTAzXSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsLTMuMTQxNTkyNjUzNTg5NzkzXX0seyJpZCI6ImJ2bXJ1NmoiLCJ0eXBlIjoiMTAtMTQ5MERPT01fV2FsbCIsInBvc2l0aW9uIjpbNC45NDg4MTQxMTE4NDM0MTcsMCwtMS4xNjk4MzEyOTA5MTkyMTAzXSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsLTMuMTQxNTkyNjUzNTg5NzkzXX0seyJpZCI6InFrZ3NleHgiLCJ0eXBlIjoiMDQtMTQ5MERPT01fQ29ybmVyX1JvdW5kX0JhdHRsZW1lbnRzIiwicG9zaXRpb24iOlstMS4wNTExODU4ODgxNTY1ODQsMiwyLjgzMDE2ODcwOTA4MDc4OTddLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCwwXX0seyJpZCI6Imh2NWdnYTUiLCJ0eXBlIjoiMDQtMTQ5MERPT01fQ29ybmVyX1JvdW5kX0JhdHRsZW1lbnRzIiwicG9zaXRpb24iOlsyLjk4NDY0OTE5OTgwNTc3MTYsMiwyLjg1NTExNjU2MjcwMDY3MDNdLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCwtNC43MTIzODg5ODAzODQ2OV19LHsiaWQiOiJ0ZXlwa3dwIiwidHlwZSI6IjA4LTE0OTBET09NX0Nvcm5lcl9TcXVhcmVfQmF0dGxlbWVudHMiLCJwb3NpdGlvbiI6Wy01LjA1MTE4NTg4ODE1NjU4NSwyLC0xLjE2OTgzMTI5MDkxOTIwOTVdLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCwwXX0seyJpZCI6IjlvaTNkY3UiLCJ0eXBlIjoiMTQtMTQ5MERPT01fVG93ZXJfU3F1YXJlIiwicG9zaXRpb24iOlstMy4xNTQyNjYzMDUzNDY4Mzg3LDIsLTMuMjUxOTI0NTYzMjE1MDk5XSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsMF19LHsiaWQiOiIzNDN2OHByIiwidHlwZSI6IjE0LTE0OTBET09NX1Rvd2VyX1NxdWFyZSIsInBvc2l0aW9uIjpbMy45MTM0MjYyMzkyNzkyNDA3LDIsLTIuMjgwMDMyNDk2NTEzMDA5XSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsMF19LHsiaWQiOiJlYjMxemQ0IiwidHlwZSI6IjE2LTE0OTBET09NX1Rvd2VyX1NxdWFyZV9XaW5kb3dzIiwicG9zaXRpb24iOlszLjkxMzQyNjIzOTI3OTI0MSw0LC0yLjI4MDAzMjQ5NjUxMzAwOV0sInJvdGF0aW9uIjpbLTEuNTcwNzk2MzI2Nzk0ODk2NiwwLDBdfSx7ImlkIjoiaXJ2NmluMyIsInR5cGUiOiIxNi0xNDkwRE9PTV9Ub3dlcl9TcXVhcmVfV2luZG93cyIsInBvc2l0aW9uIjpbMy45MTM0MjYyMzkyNzkyNDEsNiwtMi4yODAwMzI0OTY1MTMwMDldLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCwwXX0seyJpZCI6ImVicHpyaTUiLCJ0eXBlIjoiMDItMTQ5MERPT01fQnJpZGdlIiwicG9zaXRpb24iOlswLjM2MTgwNDE4NDY2ODE0MzksMiwtMi44MjM0NjQ2NTQ3MzE5ODc3XSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsLTEuNTcwNzk2MzI2Nzk0ODk2Nl19LHsiaWQiOiJhYXFlOHN3IiwidHlwZSI6IjE5LTE0OTBET09NX1Rvd2VyX1NxdWFyZV9CYXR0bGVtZW50cyIsInBvc2l0aW9uIjpbMy45MTM0MjYyMzkyNzkyNDEsOCwtMi4yODAwMzI0OTY1MTMwMDldLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCwwXX0seyJpZCI6InNqMTQ2azUiLCJ0eXBlIjoiMjAtMTQ5MERPT01fVG93ZXJfU3F1YXJlX0JhdHRsZW1lbnRfTCIsInBvc2l0aW9uIjpbLTMuMTU0MjY2MzA1MzQ2ODM5LDQsLTMuMjUxOTI0NTYzMjE1MDk5M10sInJvdGF0aW9uIjpbLTEuNTcwNzk2MzI2Nzk0ODk2NiwwLC00LjcxMjM4ODk4MDM4NDY5XX0seyJpZCI6ImN0dzN5NWMiLCJ0eXBlIjoiMjEtMTQ5MERPT01fVG93ZXJfU3F1YXJlX0JhdHRsZW1lbnRfUG9zdCIsInBvc2l0aW9uIjpbLTIuMDU4MDY4NDMwNDQ4MzkwMyw0LC00LjM3NjQ1ODA4Mjc3NDExNl0sInJvdGF0aW9uIjpbLTEuNTcwNzk2MzI2Nzk0ODk2NiwwLDEuNTcwNzk2MzI2Nzk0ODk2Nl19LHsiaWQiOiJyc2J3YzNuIiwidHlwZSI6IjA2LTE0OTBET09NX0Nvcm5lcl9Sb3VuZF9Ub3dlcl9CYXR0bGVtZW50cyIsInBvc2l0aW9uIjpbLTAuNDUxMTg1ODg4MTU2NTg1OCwyLC01Ljc2OTgzMTI5MDkxOTIxXSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsLTMuMTQxNTkyNjUzNTg5NzkzXX0seyJpZCI6IjJhcDB4ZTMiLCJ0eXBlIjoiMDYtMTQ5MERPT01fQ29ybmVyX1JvdW5kX1Rvd2VyX0JhdHRsZW1lbnRzIiwicG9zaXRpb24iOls1LjU0ODgxNDExMTg0MzQxNiwyLDEuNDMwMTY4NzA5MDgwNzg5N10sInJvdGF0aW9uIjpbLTEuNTcwNzk2MzI2Nzk0ODk2NiwwLC00LjcxMjM4ODk4MDM4NDY5XX0seyJpZCI6ImVhMW5iem8iLCJ0eXBlIjoiMDEtMTQ5MERPT01fQmF0dGxlbWVudHMiLCJwb3NpdGlvbiI6WzUuODQ4ODE0MTExODQzNDE3LDIsLTEuMTY5ODMxMjkwOTE5MjEwM10sInJvdGF0aW9uIjpbLTEuNTcwNzk2MzI2Nzk0ODk2NiwwLDBdfSx7ImlkIjoiYXB3ejg0MCIsInR5cGUiOiIwMS0xNDkwRE9PTV9CYXR0bGVtZW50cyIsInBvc2l0aW9uIjpbLTMuMDg5ODM3MTU4ODI2MDIzNiwyLC02LjE3MDQ2MjY1NjMyNTIxXSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsMS41NzA3OTYzMjY3OTQ4OTY2XX0seyJpZCI6IjBnanExZWgiLCJ0eXBlIjoiMDEtMTQ5MERPT01fQmF0dGxlbWVudHMiLCJwb3NpdGlvbiI6WzAuOTQ4ODE0MTExODQzNDE1OSwyLDMuNzMwMTY4NzA5MDgwNzldLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCwxLjU3MDc5NjMyNjc5NDg5NjZdfSx7ImlkIjoiZTlvczB6MiIsInR5cGUiOiIwMS0xNDkwRE9PTV9CYXR0bGVtZW50cyIsInBvc2l0aW9uIjpbLTUuOTUxMTg1ODg4MTU2NTg1LDIsLTMuMTY5ODMxMjkwOTE5MjA5NV0sInJvdGF0aW9uIjpbLTEuNTcwNzk2MzI2Nzk0ODk2NiwwLDMuMTQxNTkyNjUzNTg5NzkzXX0seyJpZCI6Imt1eTViZnIiLCJ0eXBlIjoiMDgtMTQ5MERPT01fQ29ybmVyX1NxdWFyZV9CYXR0bGVtZW50cyIsInBvc2l0aW9uIjpbLTUuMDUxMTg1ODg4MTU2NTg1LDIsLTUuMTY5ODMxMjkwOTE5MjFdLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCw0LjcxMjM4ODk4MDM4NDY5XX0seyJpZCI6IjFkenY0cmUiLCJ0eXBlIjoiMDgtMTQ5MERPT01fQ29ybmVyX1NxdWFyZV9CYXR0bGVtZW50cyIsInBvc2l0aW9uIjpbNC45NDg4MTQxMTE4NDM0MTcsMiwtMy4xNjk4MzEyOTA5MTkyMTAzXSwicm90YXRpb24iOlstMS41NzA3OTYzMjY3OTQ4OTY2LDAsMy4xNDE1OTI2NTM1ODk3OTNdfSx7ImlkIjoiYmYyanVldSIsInR5cGUiOiIwMS0xNDkwRE9PTV9CYXR0bGVtZW50cyIsInBvc2l0aW9uIjpbMi45NDg4MTQxMTE4NDM0MTUsMiwtNC4wNjk4MzEyOTA5MTkyMV0sInJvdGF0aW9uIjpbLTEuNTcwNzk2MzI2Nzk0ODk2NiwwLDEuNTcwNzk2MzI2Nzk0ODk2Nl19LHsiaWQiOiJza2xmc3NxIiwidHlwZSI6IjA3LSAxNDkwRE9PTV9Db3JuZXJfU3F1YXJlIDUuMTMuMjUiLCJwb3NpdGlvbiI6WzIuOTQ4ODE0MTExODQzNDE1NSwwLC0zLjE2OTgzMTI5MDkxOTIxMDNdLCJyb3RhdGlvbiI6Wy0xLjU3MDc5NjMyNjc5NDg5NjYsMCwtNy44NTM5ODE2MzM5NzQ0ODNdfV0="))
 end
 
 function onUpdate()
@@ -648,3 +652,540 @@ function dump(o)
       return tostring(o)
    end
 end
+
+------------
+------------
+
+-- modified for 5.2 :
+
+--- base64.lua
+--
+-- V0.3 for Lua 5.1
+--
+-- A full description of the specification can be found here: http://tools.ietf.org/html/rfc4648
+--
+-- To encode, use base64.encode(input), where input is a string of arbitrary bytes.  The output is a Base64 encoded string.
+-- To decode, use base64.decode(input), where input is a Base64 encoded string.  The output is a string of arbitrary bytes.
+--
+-- The library will throw an error on invalid input, you can catch these as such:
+--
+-- local status, result = pcall(base64.decode(invalidInput))
+-- if not status then
+--     print("Error, "..result)
+-- end
+--
+-- If you prefer a different Base64 variant, you can simply change the ENCODABET to your liking.
+--
+-- For all valid input, input == base64.decode(base64.encode(input)).
+--
+-- This library has a dependency on LuaBit v0.4, which can be found here: http://luaforge.net/projects/bit/
+--
+-- Copyright (C) 2012 by Paul Moore
+-- Copyright (C) 2012 by Matthew Murdoch
+--
+-- Permission is hereby granted, free of charge, to any person obtaining a copy
+-- of this software and associated documentation files (the "Software"), to deal
+-- in the Software without restriction, including without limitation the rights
+-- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-- copies of the Software, and to permit persons to whom the Software is
+-- furnished to do so, subject to the following conditions:
+--
+-- The above copyright notice and this permission notice shall be included in
+-- all copies or substantial portions of the Software.
+--
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+-- THE SOFTWARE.
+
+base64 = {}
+
+--- octet -> char encoding.
+local ENCODABET = {
+	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+	'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+	'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
+	'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+	'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
+	'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
+	'8', '9', '+', '/'
+}
+
+--- char -> octet encoding.
+local DECODABET = {}
+for i, v in ipairs(ENCODABET) do
+	DECODABET[v] = i - 1
+end
+
+local PAD = "="
+
+--- Converts a 6-bit octet into the associated Base64 character.
+--
+-- @param octet A 6-bit integer.
+-- @return The Base64 representation of the character
+local function toChar (octet)
+	return ENCODABET[octet + 1]
+end
+
+--- Converts a Base64 character into the associated octet.
+--
+-- @param char The single Base64 character.
+-- @return The 6-bit integer representing the Base64 character.
+local function toOctet (char)
+	return DECODABET[char]
+end
+
+--- Encodes a string into a Base64 string.
+-- The input can be any string of arbitrary bytes.
+-- If the input is not a string, or the string is empty, an error will be thrown.
+--
+-- @param input A non-empty input string.
+-- @return The Base64 representation of the input string.
+function base64.encode (input)
+
+	local bytes = { input:byte(i, #input) }
+
+	local out = {}
+	
+	-- Go through each triplet of 3 bytes, which produce 4 octets.
+	local i = 1
+	while i <= #bytes - 2 do
+		local buffer = 0
+		
+		-- Fill the buffer with the bytes, producing a 24-bit integer.
+		local b = bit.blshift(bytes[i], 16)
+		b = bit.band(b, 0xff0000)
+		buffer = bit.bor(buffer, b)
+		
+		b = bit.blshift(bytes[i + 1], 8)
+		b = bit.band(b, 0xff00)
+		buffer = bit.bor(buffer, b)
+		
+		b = bit.band(bytes[i + 2], 0xff)
+		buffer = bit.bor(buffer, b)
+		
+		-- Read out the 4 octets into the output buffer.
+		b = bit.blogic_rshift(buffer, 18)
+		b = bit.band(b, 0x3f)
+		out[#out + 1] = toChar(b)
+		
+		b = bit.blogic_rshift(buffer, 12)
+		b = bit.band(b, 0x3f)
+		out[#out + 1] = toChar(b)
+		
+		b = bit.blogic_rshift(buffer, 6)
+		b = bit.band(b, 0x3f)
+		out[#out + 1] = toChar(b)
+		
+		b = bit.band(buffer, 0x3f)
+		out[#out + 1] = toChar(b)
+				
+		i = i + 3
+	end
+	
+	-- Special case 1: One byte extra, will produce 2 octets.
+	if #bytes % 3 == 1 then
+		local buffer = bit.blshift(bytes[i], 16)
+		buffer = bit.band(buffer, 0xff0000)
+		
+		local b = bit.blogic_rshift(buffer, 18)
+		b = bit.band(b, 0x3f)
+		out[#out + 1] = toChar(b)
+		
+		b = bit.blogic_rshift(buffer, 12)
+		b = bit.band(b, 0x3f)
+		out[#out + 1] = toChar(b)
+		
+		out[#out + 1] = PAD
+		out[#out + 1] = PAD
+		
+	-- Special case 2: Two bytes extra, will produce 3 octets.
+	elseif #bytes % 3 == 2 then
+		local buffer = 0
+		
+		local b = bit.blshift(bytes[i], 16)
+		b = bit.band(b, 0xff0000)
+		buffer = bit.bor(buffer, b)
+		
+		b = bit.blshift(bytes[i + 1], 8)
+		b = bit.band(b, 0xff00)
+		buffer = bit.bor(buffer, b)
+
+		b = bit.blogic_rshift(buffer, 18)
+		b = bit.band(b, 0x3f)
+		out[#out + 1] = toChar(b)
+		
+		b = bit.blogic_rshift(buffer, 12)
+		b = bit.band(b, 0x3f)
+		out[#out + 1] = toChar(b)
+		
+		b = bit.blogic_rshift(buffer, 6)
+		b = bit.band(b, 0x3f)
+		out[#out + 1] = toChar(b)
+		
+		out[#out + 1] = PAD
+	end
+	
+	return table.concat(out)
+	
+end
+
+--- Decodes a Base64 string into an output string of arbitrary bytes.
+-- If the input is not a string, or the string is empty, or the string is not well-formed Base64, an error will be thrown.
+--
+-- @param input The Base64 input to decode.
+-- @return The decoded Base64 string, as a string of bytes.
+function base64.decode (input)
+	
+	local length = #input
+	-- Ignore any padding.
+	if PAD then
+		length = input:find(PAD, 1, true) or (length + 1)
+		length = length - 1
+	end
+	assert(length > 0, "Invalid input, cannot decode a padded string with no bytes: "..tostring(input))
+	
+	local out = {}
+	
+	-- Go through each group of 4 octets to obtain 3 bytes.
+	local i = 1
+	while i <= length - 3 do
+		local buffer = 0
+		
+		-- Read the 4 octets into the buffer, producing a 24-bit integer.
+		local b = toOctet(input:sub(i, i))
+		b = bit.blshift(b, 18)
+		buffer = bit.bor(buffer, b)
+		i = i + 1
+		
+		b = toOctet(input:sub(i, i))
+		b = bit.blshift(b, 12)
+		buffer = bit.bor(buffer, b)
+		i = i + 1
+		
+		b = toOctet(input:sub(i, i))
+		b = bit.blshift(b, 6)
+		buffer = bit.bor(buffer, b)
+		i = i + 1
+		
+		b = toOctet(input:sub(i, i))
+		buffer = bit.bor(buffer, b)
+		i = i + 1
+		
+		-- Append the 3 re-constructed bytes into the output buffer.
+		b = bit.blogic_rshift(buffer, 16)
+		b = bit.band(b, 0xff)
+		out[#out + 1] = b
+		
+		b = bit.blogic_rshift(buffer, 8)
+		b = bit.band(b, 0xff)
+		out[#out + 1] = b
+		
+		b = bit.band(buffer, 0xff)
+		out[#out + 1] = b
+	end
+
+	-- Special case 1: Only 2 octets remain, producing 1 byte.
+	if length % 4 == 2 then
+		local buffer = 0
+
+		local b = toOctet(input:sub(i, i))
+		b = bit.blshift(b, 18)
+		buffer = bit.bor(buffer, b)
+		i = i + 1
+		
+		b = toOctet(input:sub(i, i))
+		b = bit.blshift(b, 12)
+		buffer = bit.bor(buffer, b)
+		i = i + 1
+		
+		b = bit.blogic_rshift(buffer, 16)
+		b = bit.band(b, 0xff)
+		out[#out + 1] = b
+		
+	-- Special case 2: Only 3 octets remain, producing 2 bytes.
+	elseif length % 4 == 3 then
+		local buffer = 0
+		
+		local b = toOctet(input:sub(i, i))
+		b = bit.blshift(b, 18)
+		buffer = bit.bor(buffer, b)
+		i = i + 1
+		
+		b = toOctet(input:sub(i, i))
+		b = bit.blshift(b, 12)
+		buffer = bit.bor(buffer, b)
+		i = i + 1
+		
+		b = toOctet(input:sub(i, i))
+		b = bit.blshift(b, 6)
+		buffer = bit.bor(buffer, b)
+		i = i + 1
+
+		b = bit.blogic_rshift(buffer, 16)
+		b = bit.band(b, 0xff)
+		out[#out + 1] = b
+		
+		b = bit.blogic_rshift(buffer, 8)
+		b = bit.band(b, 0xff)
+		out[#out + 1] = b
+		
+	-- Special case 3: One octet remains, we can't get any bytes out of this, throw error.
+	elseif length % 4 == 1 then
+		error("Invalid length input string, extra character: "..tostring(input:sub(i, i)))
+	end
+
+	return string.char(unpack(out))
+	
+end
+
+--[[---------------
+LuaBit v0.4
+-------------------
+a bitwise operation lib for lua.
+
+http://luaforge.net/projects/bit/
+
+How to use:
+-------------------
+ bit.bnot(n) -- bitwise not (~n)
+ bit.band(m, n) -- bitwise and (m & n)
+ bit.bor(m, n) -- bitwise or (m | n)
+ bit.bxor(m, n) -- bitwise xor (m ^ n)
+ bit.brshift(n, bits) -- right shift (n >> bits)
+ bit.blshift(n, bits) -- left shift (n << bits)
+ bit.blogic_rshift(n, bits) -- logic right shift(zero fill >>>)
+ 
+Please note that bit.brshift and bit.blshift only support number within
+32 bits.
+
+2 utility functions are provided too:
+ bit.tobits(n) -- convert n into a bit table(which is a 1/0 sequence)
+               -- high bits first
+ bit.tonumb(bit_tbl) -- convert a bit table into a number 
+-------------------
+
+Under the MIT license.
+
+copyright(c) 2006~2007 hanzhao (abrash_han@hotmail.com)
+--]]---------------
+
+do
+
+------------------------
+-- bit lib implementions
+
+local function check_int(n)
+ -- checking not float
+ if(n - math.floor(n) > 0) then
+  error("trying to use bitwise operation on non-integer!")
+ end
+end
+
+local function to_bits(n)
+ check_int(n)
+ if(n < 0) then
+  -- negative
+  return to_bits(bit.bnot(math.abs(n)) + 1)
+ end
+ -- to bits table
+ local tbl = {}
+ local cnt = 1
+ while (n > 0) do
+  local last = n % 2
+  if(last == 1) then
+   tbl[cnt] = 1
+  else
+   tbl[cnt] = 0
+  end
+  n = (n-last)/2
+  cnt = cnt + 1
+ end
+
+ return tbl
+end
+
+local function tbl_to_number(tbl)
+ local n = #tbl
+
+ local rslt = 0
+ local power = 1
+ for i = 1, n do
+  rslt = rslt + tbl[i]*power
+  power = power*2
+ end
+ 
+ return rslt
+end
+
+local function expand(tbl_m, tbl_n)
+ local big = {}
+ local small = {}
+ if #tbl_m > #tbl_n then
+  big = tbl_m
+  small = tbl_n
+ else
+  big = tbl_n
+  small = tbl_m
+ end
+ -- expand small
+ for i = #small + 1, #big do
+  small[i] = 0
+ end
+
+end
+
+local function bit_or(m, n)
+ local tbl_m = to_bits(m)
+ local tbl_n = to_bits(n)
+ expand(tbl_m, tbl_n)
+
+ local tbl = {}
+ local rslt = math.max(#tbl_m, #tbl_n)
+ for i = 1, rslt do
+  if(tbl_m[i]== 0 and tbl_n[i] == 0) then
+   tbl[i] = 0
+  else
+   tbl[i] = 1
+  end
+ end
+ 
+ return tbl_to_number(tbl)
+end
+
+local function bit_and(m, n)
+ local tbl_m = to_bits(m)
+ local tbl_n = to_bits(n)
+ expand(tbl_m, tbl_n) 
+
+ local tbl = {}
+ local rslt = math.max(#tbl_m, #tbl_n)
+ for i = 1, rslt do
+  if(tbl_m[i]== 0 or tbl_n[i] == 0) then
+   tbl[i] = 0
+  else
+   tbl[i] = 1
+  end
+ end
+
+ return tbl_to_number(tbl)
+end
+
+local function bit_not(n)
+ 
+ local tbl = to_bits(n)
+ local size = math.max(#tbl, 32)
+ for i = 1, size do
+  if(tbl[i] == 1) then 
+   tbl[i] = 0
+  else
+   tbl[i] = 1
+  end
+ end
+ return tbl_to_number(tbl)
+end
+
+local function bit_xor(m, n)
+ local tbl_m = to_bits(m)
+ local tbl_n = to_bits(n)
+ expand(tbl_m, tbl_n) 
+
+ local tbl = {}
+ local rslt = math.max(#tbl_m, #tbl_n)
+ for i = 1, rslt do
+  if(tbl_m[i] ~= tbl_n[i]) then
+   tbl[i] = 1
+  else
+   tbl[i] = 0
+  end
+ end
+ 
+ --table.foreach(tbl, print)
+
+ return tbl_to_number(tbl)
+end
+
+local function bit_rshift(n, bits)
+ check_int(n)
+ 
+ local high_bit = 0
+ if(n < 0) then
+  -- negative
+  n = bit_not(math.abs(n)) + 1
+  high_bit = 2147483648 -- 0x80000000
+ end
+
+ for i=1, bits do
+  n = n/2
+  n = bit_or(math.floor(n), high_bit)
+ end
+ return math.floor(n)
+end
+
+-- logic rightshift assures zero filling shift
+local function bit_logic_rshift(n, bits)
+ check_int(n)
+ if(n < 0) then
+  -- negative
+  n = bit_not(math.abs(n)) + 1
+ end
+ for i=1, bits do
+  n = n/2
+ end
+ return math.floor(n)
+end
+
+local function bit_lshift(n, bits)
+ check_int(n)
+ 
+ if(n < 0) then
+  -- negative
+  n = bit_not(math.abs(n)) + 1
+ end
+
+ for i=1, bits do
+  n = n*2
+ end
+ return bit_and(n, 4294967295) -- 0xFFFFFFFF
+end
+
+local function bit_xor2(m, n)
+ local rhs = bit_or(bit_not(m), bit_not(n))
+ local lhs = bit_or(m, n)
+ local rslt = bit_and(lhs, rhs)
+ return rslt
+end
+
+--------------------
+-- bit lib interface
+
+bit = {
+ -- bit operations
+ bnot = bit_not,
+ band = bit_and,
+ bor  = bit_or,
+ bxor = bit_xor,
+ brshift = bit_rshift,
+ blshift = bit_lshift,
+ bxor2 = bit_xor2,
+ blogic_rshift = bit_logic_rshift,
+
+ -- utility func
+ tobits = to_bits,
+ tonumb = tbl_to_number,
+}
+
+end
+
+--[[
+for i = 1, 100 do
+ for j = 1, 100 do
+  if(bit.bxor(i, j) ~= bit.bxor2(i, j)) then
+   error("bit.xor failed.")
+  end
+ end
+end
+--]]
